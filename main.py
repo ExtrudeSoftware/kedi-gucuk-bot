@@ -12,8 +12,7 @@ async def on_message(message):
         return
     if message.content.strip() == "selam":
         await message.channel.send("selam, " + message.author.mention)
-    elif message.content.strip() == "miw":
-        await message.channel.send("miw")
+
     else:
         await client.process_commands(message) # komutu çalıştır
 
