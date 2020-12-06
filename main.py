@@ -2,7 +2,6 @@ from utils import *
 
 client = commands.Bot(command_prefix=prefix)
 
-
 @client.event
 async def on_ready():
     await client.change_presence(status=discord.Status.idle, activity=discord.Game(name="k!yardım"))
@@ -17,7 +16,7 @@ async def on_ready():
             else:
                 print(f"[INFO] Cog yüklendi: {file.split('.')[0]}")
 
-    print("\n\nBot: %s\nBotID: %s\nBot hazır." % (str(botName), str(botID)))
+    print("\n\nBot: %s\nBotID: %s\nBot hazır.\n\n" % (str(botName), str(botID)))
 
 
 @client.event
@@ -26,7 +25,16 @@ async def on_message(message):
         return
     else:
         await client.process_commands(message) # komutu çalıştı
-        
+
+@client.event
+async def on_command_error(ctx, error): # Komut çalışırken hata alınırsa
+	print(f"[WARN] {ctx.command.name} komutu {ctx.author} tarafından çalıştırılırken bir hata meydana geldi:\n{error}")
+    
+@client.event
+async def on_command_completion(ctx): # Komut sorunsuz çalışırsa
+	print(f"[INFO] {ctx.command.name} komutu {ctx.author} tarafından başarıyla çalıştırıldı.")
+
+
 @client.event
 async def on_member_join(member):
     print("biri geldi ml")

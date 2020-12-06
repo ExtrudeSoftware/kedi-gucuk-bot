@@ -7,19 +7,20 @@ class Fun(commands.Cog):
         self.client = client
 
     @commands.command(aliases=["söyle", "print", "say"])
-    async def yazdır(self, ctx, *, mesaj):
-        msg = mesaj.split(" ")
-        for i in msg:
-            if i == "-i" or i == "--ignore": # ignore the syntax rules
-                mesaj = mesaj.replace("-i" if i == "-i" else "--ignore", "")
-                break 
-            
-            if i == "-d" or i == "--del": # delete the authors' message after using this command
-                await ctx.message.delete()
-                mesaj = mesaj.replace("-d" if i == "-d" else "--del" , "")
-                
-        await ctx.send(mesaj)
+    async def yazdır(self, ctx, *, mesaj=None):
+        if not mesaj:
+            await ctx.send("Yazdırılacak mesajı belirlemelisin.")
+        else:
+            await ctx.send(mesaj)
     
+    @commands.command(aliases=["printndel", "sayndel"])
+    async def yazdırsil(self, ctx, *, mesaj=None):
+        if not mesaj:
+            await ctx.send("Yazdırılacak mesajı belirlemelisin.")
+        else:
+            await ctx.message.delete()
+            await ctx.send(mesaj)
+
     @commands.command(aliases=["kura", "choice", "rastgele"])
     async def çekiliş(self, ctx, *msg):
         if len(msg) <= 1: 
