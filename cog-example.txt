@@ -1,0 +1,15 @@
+import sys, os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from utils import *
+
+
+class Moderation(commands.Cog):
+    def __init__(self, client):
+        self.client = client
+
+    @commands.command()
+    async def ping(ctx):
+        await ctx.send("Pong")
+    
+def setup(client):
+    client.add_cog(Moderation(client))
