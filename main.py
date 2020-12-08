@@ -36,6 +36,9 @@ async def on_message(message):
 
 @client.event
 async def on_command_error(ctx, error): # Komut çalışırken hata alınırsa
+    if isinstance(error, commands.MissingPermissions):
+        await ctx.send("Yeterli yetkin bulunmamakta.")
+    
     try:
         print(f"[WARN] {ctx.command.name} komutu {ctx.author} tarafından çalıştırılırken bir hata meydana geldi:\n{error}")
     except:
@@ -45,12 +48,14 @@ async def on_command_error(ctx, error): # Komut çalışırken hata alınırsa
 async def on_command_completion(ctx): # Komut sorunsuz çalışırsa
 	print(f"[INFO] {ctx.command.name} komutu {ctx.author} tarafından başarıyla çalıştırıldı.")
 
-"""
-# TODO: database ile kullanıcıları takip et
+
 @client.event
 async def on_member_join(member):
-    print("biri geldi ml")
-""" 
+    print(f"{member}, katıldı.")
+
+@client.event
+async def on_member_remove(member):
+    print(f"{member}, ayrıldı." )
 
 @client.command()
 @commands.check(isAuthor)

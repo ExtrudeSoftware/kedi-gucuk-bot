@@ -7,7 +7,6 @@ import random as ran
 import os
 import sys
 import time
-import datetime
 
 # Uptime
 start_time = time.time()

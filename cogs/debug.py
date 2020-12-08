@@ -34,6 +34,18 @@ class Debug(commands.Cog):
             o = member.id in author
             await ctx.send(o)
     
+    @commands.command()
+    async def uptime(self, ctx):
+        end_time = time.time()
+        zaman = int(end_time - start_time) # geçen zaman
+        
+        saniye = zaman % 60
+        dakika = zaman // 60
+        saat = zaman // 3600
+        
+        await ctx.send(f"Bot, {saat} saat, {dakika} dakika, {saniye} saniyedir açık.") 
+
+
 
         
         
