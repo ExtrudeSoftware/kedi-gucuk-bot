@@ -6,6 +6,11 @@ from json import load
 import random as ran
 import os
 import sys
+import time
+import datetime
+
+# Uptime
+start_time = time.time()
 
 # Path
 mainPath = os.path.join(os.path.dirname(__file__), "main.py") # for cogs

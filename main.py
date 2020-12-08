@@ -1,7 +1,15 @@
 from utils import *
 
-client = commands.Bot(command_prefix=prefix)
+intents = discord.Intents(messages=True, guilds=True, members=True)
+client = commands.Bot(command_prefix=prefix, intents=intents, case_insensitive=True)
 
+async def isAuthor(ctx):
+    if ctx.author.id in author:
+        return True
+    else:
+        await ctx.send("Bu komutu kullanmak için yetkiniz bulunmamaktadır.")
+        
+ 
 @client.event
 async def on_ready():
     await client.change_presence(status=discord.Status.idle, activity=discord.Game(name="k!yardım"))
@@ -37,13 +45,15 @@ async def on_command_error(ctx, error): # Komut çalışırken hata alınırsa
 async def on_command_completion(ctx): # Komut sorunsuz çalışırsa
 	print(f"[INFO] {ctx.command.name} komutu {ctx.author} tarafından başarıyla çalıştırıldı.")
 
-
+"""
+# TODO: database ile kullanıcıları takip et
 @client.event
 async def on_member_join(member):
     print("biri geldi ml")
-    
+""" 
 
 @client.command()
+@commands.check(isAuthor)
 async def loadcog(ctx, cogname):
     try:
         client.load_extension(f"cogs.{cogname}")
@@ -56,6 +66,7 @@ async def loadcog(ctx, cogname):
         await ctx.send(f"{cogname} başarıyla yüklendi.")
 
 @client.command()
+@commands.check(isAuthor)
 async def delcog(ctx, cogname):
     try:
         client.unload_extension(f"cogs.{cogname}")
@@ -68,6 +79,7 @@ async def delcog(ctx, cogname):
         await ctx.send(f"{cogname} başarıyla kaldırıldı.")
 
 @client.command()
+@commands.check(isAuthor)
 async def delallcogs(ctx):
     basari = []
     fail = []
@@ -90,6 +102,7 @@ async def delallcogs(ctx):
     await ctx.send(f"Silinen coglar: {basari}\nSilinemeyen coglar: {fail}")       
     
 @client.command()
+@commands.check(isAuthor)
 async def loadallcogs(ctx):
     basari = []
     fail = []

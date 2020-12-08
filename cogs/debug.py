@@ -33,6 +33,9 @@ class Debug(commands.Cog):
         else:
             o = member.id in author
             await ctx.send(o)
+    
 
+        
+        
 def setup(client):
     client.add_cog(Debug(client))
