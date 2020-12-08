@@ -1,7 +1,7 @@
 import sys, os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils import *
-
+ 
 
 class Moderation(commands.Cog):
     def __init__(self, client):
@@ -11,19 +11,25 @@ class Moderation(commands.Cog):
     @commands.has_permissions(ban_members=True)
     @commands.guild_only()
     async def ban(self,ctx, member:discord.Member=None, *, reason="Sebep verilmemiş"):
+        if member.guild_permissions.administrator:
+            return await ctx.send("Yönetici bir kullanıcıyı banlayamazsın.")
+
         if not member:
-            await ctx.send("Banlamak için üye belirlemelisiniz.")
-        else:
-            await member.ban(reason=reason)
+            return await ctx.send("Banlamak için üye belirlemelisiniz.")
+        
+        await member.ban(reason=reason)
 
     @commands.command(pass_context=True, aliases=["at"])
     @commands.has_permissions(kick_members=True)
     @commands.guild_only()
     async def kick(self, ctx, member:discord.Member=None, *, reason="Sebep verilmemiş"):
+        if member.guild_permissions.administrator:
+            return await ctx.send("Yönetici bir kullanıcıyı sunucudan atamazsın.")
+
         if not member:
-            await ctx.send("Kick için üye belirlemelisiniz.")
-        else:
-            await member.kick(reason=reason)
+            return await ctx.send("Kick için üye belirlemelisiniz.")
+        
+        await member.kick(reason=reason)
     
     @commands.command(pass_context=True, aliases=["bankaldır", "engelkaldır"])
     @commands.has_permissions(ban_members=True)
@@ -31,15 +37,21 @@ class Moderation(commands.Cog):
     async def unban(self, ctx, *, member=None):
         if not member:
             await ctx.send("Banını kaldırmak istediğiniz kullanıcıyı belirtmelisiniz.")
+
         else:
-            banned_users = await ctx.guild.bans()
-            
-            member_name, member_discriminator = member.split('#')
-            for ban_entry in banned_users:
-                user = ban_entry.user
+            try:
+                banned_users = await ctx.guild.bans()
                 
-                if (user.name, user.discriminator) == (member_name, member_discriminator):
-                    await ctx.guild.unban(user)    
+                member_name, member_discriminator = member.split('#')
+                
+                for ban_entry in banned_users:
+                    user = ban_entry.user
+                        
+                    if (user.name, user.discriminator) == (member_name, member_discriminator):
+                        await ctx.guild.unban(user)
+
+            except ValueError:
+                await ctx.send("Bu kullanıcı banlı değil.") 
 
 
     @commands.command(pass_context=True, aliases=["purge","clear"])
@@ -60,8 +72,8 @@ class Moderation(commands.Cog):
 
     @commands.command(pass_context=True, aliases=["purgeu","purgeuser"])
     @commands.has_permissions(manage_messages=True)
-    @commands.guild_only()    
-    async def ktemizle(self, ctx, member:discord.Member, limit:int=None):
+    @commands.guild_only()
+    async def ktemizle(self, ctx, member:discord.Member=None, limit:int=None):
         if not member:
             return await ctx.send("Üye belirlemelisin.")
 
@@ -78,5 +90,102 @@ class Moderation(commands.Cog):
         await ctx.channel.delete_messages(msg)
         await ctx.send(f"{member.mention} kullanıcısının {limit} mesajı {ctx.author.mention} tarafından silindi.", delete_after=3)
 
+
+    @commands.command(pass_context=True, aliases=["sustur"])
+    @commands.has_permissions(manage_roles=True)
+    @commands.guild_only()
+    async def mute(self, ctx, member:discord.Member=None, *, reason="sebep belirtilmemiş"):
+        if not member:
+            return await ctx.send("Mute için kullanıcı belirleyiniz.")
+        
+        if member.bot:
+            return await ctx.send("Bot kullanıcıları muteleyemezsin.")
+        
+        if member.guild_permissions.administrator:
+            return await ctx.send("Yönetici bir kullanıcıyı muteleyemezsin.")
+
+        if discord.utils.get(member.roles, name="GucukMute"):
+            return await ctx.send("Bu kullanıcı zaten muteli.")
+
+        ###########
+        
+        if not discord.utils.get(ctx.guild.roles, name="GucukMute"):   
+            perms = discord.Permissions(send_messages=False, read_messages=True)
+            role = await ctx.guild.create_role(name="GucukMute", permissions=perms) 
+
+        if discord.utils.get(ctx.guild.roles, name="GucukMute"):
+            role = discord.utils.get(ctx.guild.roles, name="GucukMute")        
+
+        for channel in self.client.get_guild(ctx.guild.id).channels: await channel.set_permissions(role, send_messages=False)
+        await member.add_roles(role)
+        
+        await ctx.send(f"{member.mention} kullanıcısı {ctx.author.mention} tarafından \'{reason}\' sebebiyle susturulmuştur.")
+        
+
+    @commands.command(pass_context=True, aliases=["timemute","zsustur"])
+    @commands.has_permissions(manage_roles=True)
+    @commands.guild_only()
+    async def tmute(self, ctx, member:discord.Member=None, *, args):
+        args = args.split(" ")
+        try:
+            minutes = int(args[0])
+        except: return await ctx.send("Sadece sayı giriniz.")
+
+        reason = " ".join(args[1:])
+        if not member:
+            return await ctx.send("Time mute için kullanıcı belirleyiniz.")
+        
+        if not member:
+            return await ctx.send("Mute için kullanıcı belirleyiniz.")
+        
+        if member.bot:
+            return await ctx.send("Bot kullanıcıları muteleyemezsin.")
+        
+        if member.guild_permissions.administrator:
+            return await ctx.send("Yönetici bir kullanıcıyı muteleyemezsin.")
+
+        if discord.utils.get(member.roles, name="GucukMute"):
+            return await ctx.send("Bu kullanıcı zaten muteli.")
+
+        if minutes <= 0:
+            return await ctx.send("Dakika, 0 ya da 0\'dan küçük olamaz.")
+
+        ##############################
+
+
+        if not discord.utils.get(ctx.guild.roles, name="GucukMute"):   
+            perms = discord.Permissions(send_messages=False, read_messages=True)
+            role = await ctx.guild.create_role(name="GucukMute", permissions=perms) 
+
+        if discord.utils.get(ctx.guild.roles, name="GucukMute"):
+            role = discord.utils.get(ctx.guild.roles, name="GucukMute")
+
+        for channel in self.client.get_guild(ctx.guild.id).channels: await channel.set_permissions(role, send_messages=False)
+        await member.add_roles(role)
+        
+        await ctx.send(f"{member.mention} kullanıcısı {ctx.author.mention} tarafından \'{reason}\' sebebiyle {minutes} dakika boyunca susturulmuştur.")
+
+        await asyncio.sleep(minutes * 60)
+        role = discord.utils.get(ctx.guild.roles, name="GucukMute")
+        await member.remove_roles(role)
+        
+        
+
+    @commands.command(pass_context=True, aliases=["konuş","susturkaldır"])
+    @commands.has_permissions(manage_roles=True)
+    @commands.guild_only()
+    async def unmute(self, ctx, member:discord.Member=None):
+        if not member:
+            return await ctx.send("Unmute için kullanıcı belirleyiniz.")
+
+        if not discord.utils.get(member.roles, name="GucukMute"):
+            return await ctx.send("Kullanıcı zaten muteli değil.")
+
+        role = discord.utils.get(ctx.guild.roles, name="GucukMute")
+        await member.remove_roles(role)
+
+        await ctx.send(f"{member.mention} kullanısının mute cezası {ctx.author.mention} tarafından kaldırılmıştır.")
+  
+    
 def setup(client):
     client.add_cog(Moderation(client))

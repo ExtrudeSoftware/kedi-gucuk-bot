@@ -2,17 +2,20 @@ from utils import *
 
 intents = discord.Intents(messages=True, guilds=True, members=True)
 client = commands.Bot(command_prefix=prefix, intents=intents, case_insensitive=True)
-client.remove_command('help')
+client.remove_command("help")
 
 async def isAuthor(ctx):
     if ctx.author.id in author:
         return True
     else:
         await ctx.send("Bu komutu kullanmak için yetkiniz bulunmamaktadır.")
-        
+
+# NOTE: member.guild_permissions.administrator ile kullanıcının yetkilerini sorgulayabilirsin        
  
 @client.event
 async def on_ready():
+    await client.get_channel(785950454721806358).send(":green_circle: bot online.") # optional
+
     await client.change_presence(status=discord.Status.idle, activity=discord.Game(name="k!yardım"))
 
     for file in os.listdir(os.path.join(os.path.dirname(__file__), "cogs")):
