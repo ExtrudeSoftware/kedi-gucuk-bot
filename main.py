@@ -144,6 +144,7 @@ async def yardım(ctx):
     embed.set_thumbnail(url="https://camo.githubusercontent.com/9c71d96ccd0bc414e3caf4bf2a5ce273f53e796286b60fbdbecc13f7fed79448/68747470733a2f2f63646e2e646973636f72646170702e636f6d2f6174746163686d656e74732f3636303830373139313033363535393339322f3738353831393335393132383937373432392f756e6b6e6f776e2e706e67")
     embed.add_field(name="Hata ve geri bildirim için", value="https://github.com/gucukyazilim/kedi-gucuk-bot-wiki/issues", inline=False)
     embed.add_field(name="Kullanım kılavuzu için", value="https://github.com/gucukyazilim/kedi-gucuk-bot-wiki/wiki", inline=False)
+    embed.add_field(name="Kedi Gucuk botunu tartışmak için", value="https://github.com/gucukyazilim/kedi-gucuk-bot-wiki/discussions/1", inline=False)
     await ctx.send(embed=embed)
 
 

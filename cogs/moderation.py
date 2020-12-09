@@ -10,12 +10,12 @@ class Moderation(commands.Cog):
     @commands.command(pass_context=True, aliases=["engel"])
     @commands.has_permissions(ban_members=True)
     @commands.guild_only()
-    async def ban(self,ctx, member:discord.Member=None, *, reason="Sebep verilmemiş"):
-        if member.guild_permissions.administrator:
-            return await ctx.send("Yönetici bir kullanıcıyı banlayamazsın.")
-
+    async def ban(self,ctx, member:discord.Member=None, *, reason="sebep verilmemiş"):
         if not member:
             return await ctx.send("Banlamak için üye belirlemelisiniz.")
+
+        if member.guild_permissions.administrator:
+            return await ctx.send("Yönetici bir kullanıcıyı banlayamazsın.")
         
         await member.ban(reason=reason)
 
@@ -23,11 +23,11 @@ class Moderation(commands.Cog):
     @commands.has_permissions(kick_members=True)
     @commands.guild_only()
     async def kick(self, ctx, member:discord.Member=None, *, reason="Sebep verilmemiş"):
-        if member.guild_permissions.administrator:
-            return await ctx.send("Yönetici bir kullanıcıyı sunucudan atamazsın.")
-
         if not member:
             return await ctx.send("Kick için üye belirlemelisiniz.")
+        
+        if member.guild_permissions.administrator:
+            return await ctx.send("Yönetici bir kullanıcıyı sunucudan atamazsın.")
         
         await member.kick(reason=reason)
     
@@ -113,7 +113,7 @@ class Moderation(commands.Cog):
             perms = discord.Permissions(send_messages=False, read_messages=True)
             role = await ctx.guild.create_role(name="GucukMute", permissions=perms) 
 
-        if discord.utils.get(ctx.guild.roles, name="GucukMute"):
+        else:
             role = discord.utils.get(ctx.guild.roles, name="GucukMute")        
 
         for channel in self.client.get_guild(ctx.guild.id).channels: await channel.set_permissions(role, send_messages=False)
@@ -157,7 +157,7 @@ class Moderation(commands.Cog):
             perms = discord.Permissions(send_messages=False, read_messages=True)
             role = await ctx.guild.create_role(name="GucukMute", permissions=perms) 
 
-        if discord.utils.get(ctx.guild.roles, name="GucukMute"):
+        else:
             role = discord.utils.get(ctx.guild.roles, name="GucukMute")
 
         for channel in self.client.get_guild(ctx.guild.id).channels: await channel.set_permissions(role, send_messages=False)

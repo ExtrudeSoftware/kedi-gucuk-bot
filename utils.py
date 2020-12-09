@@ -10,6 +10,7 @@ import time
 import asyncio
 import requests as req
 from bs4 import BeautifulSoup
+import ast
 
 # Uptime
 start_time = time.time()
