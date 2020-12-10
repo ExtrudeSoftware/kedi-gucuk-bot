@@ -1,11 +1,12 @@
 import sys, os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils import *
- 
+
 
 class Moderation(commands.Cog):
     def __init__(self, client):
         self.client = client
+
 
     @commands.command(pass_context=True, aliases=["engel"])
     @commands.has_permissions(ban_members=True)
@@ -17,7 +18,12 @@ class Moderation(commands.Cog):
         if member.guild_permissions.administrator:
             return await ctx.send("Yönetici bir kullanıcıyı banlayamazsın.")
         
-        await member.ban(reason=reason)
+        try:
+            await member.ban(reason=reason)
+        except:
+            await ctx.message.add_reaction(FAIL_EMOJI)
+        else:
+            await ctx.message.add_reaction(OK_EMOJI)
 
     @commands.command(pass_context=True, aliases=["at"])
     @commands.has_permissions(kick_members=True)
@@ -28,16 +34,20 @@ class Moderation(commands.Cog):
         
         if member.guild_permissions.administrator:
             return await ctx.send("Yönetici bir kullanıcıyı sunucudan atamazsın.")
-        
-        await member.kick(reason=reason)
-    
+
+        try:
+            await member.kick(reason=reason)
+        except:
+            await ctx.message.add_reaction(FAIL_EMOJI)
+        else:
+            await ctx.message.add_reaction(OK_EMOJI)
+
     @commands.command(pass_context=True, aliases=["bankaldır", "engelkaldır"])
     @commands.has_permissions(ban_members=True)
     @commands.guild_only()
-    async def unban(self, ctx, *, member=None):
+    async def unban(self, ctx, member=None):
         if not member:
             await ctx.send("Banını kaldırmak istediğiniz kullanıcıyı belirtmelisiniz.")
-
         else:
             try:
                 banned_users = await ctx.guild.bans()
@@ -49,9 +59,18 @@ class Moderation(commands.Cog):
                         
                     if (user.name, user.discriminator) == (member_name, member_discriminator):
                         await ctx.guild.unban(user)
-
             except ValueError:
-                await ctx.send("Bu kullanıcı banlı değil.") 
+                try:
+                    await ctx.guild.unban(await self.client.fetch_user(int(member)))
+                except:
+                    await ctx.send("Geçersiz kullanıcı.")
+                    await ctx.message.add_reaction(FAIL_EMOJI)
+                else:
+                    await ctx.message.add_reaction(OK_EMOJI)
+
+            else:
+                await ctx.message.add_reaction(OK_EMOJI)
+            
 
 
     @commands.command(pass_context=True, aliases=["purge","clear"])
@@ -67,8 +86,13 @@ class Moderation(commands.Cog):
         if amount <= 0:
             return await ctx.send("Lütfen 0'dan büyük bir sayı giriniz.")     
 
-        await ctx.channel.purge(limit=amount)
-        await ctx.send(f":white_check_mark: {amount} mesaj {ctx.author.mention} tarafından silindi.", delete_after=3)
+        try:
+            await ctx.channel.purge(limit=amount)
+        except:
+            await ctx.message.add_reaction(FAIL_EMOJI)
+        else:
+            await ctx.message.add_reaction(OK_EMOJI)
+            await ctx.send(f":white_check_mark: {amount} mesaj {ctx.author.mention} tarafından silindi.", delete_after=3)
 
     @commands.command(pass_context=True, aliases=["purgeu","purgeuser"])
     @commands.has_permissions(manage_messages=True)
@@ -86,7 +110,7 @@ class Moderation(commands.Cog):
                 break
             if m.author == member:
                 msg.append(m)
-
+        
         await ctx.channel.delete_messages(msg)
         await ctx.send(f"{member.mention} kullanıcısının {limit} mesajı {ctx.author.mention} tarafından silindi.", delete_after=3)
 
@@ -131,12 +155,8 @@ class Moderation(commands.Cog):
             minutes = int(args[0])
         except: return await ctx.send("Sadece sayı giriniz.")
 
-        reason = " ".join(args[1:])
         if not member:
             return await ctx.send("Time mute için kullanıcı belirleyiniz.")
-        
-        if not member:
-            return await ctx.send("Mute için kullanıcı belirleyiniz.")
         
         if member.bot:
             return await ctx.send("Bot kullanıcıları muteleyemezsin.")
@@ -149,9 +169,13 @@ class Moderation(commands.Cog):
 
         if minutes <= 0:
             return await ctx.send("Dakika, 0 ya da 0\'dan küçük olamaz.")
+        
+        if not args[1:]:
+            reason = "sebep verilmemiş"
+        else:
+            reason = " ".join(args[1:])
 
         ##############################
-
 
         if not discord.utils.get(ctx.guild.roles, name="GucukMute"):   
             perms = discord.Permissions(send_messages=False, read_messages=True)
@@ -166,7 +190,6 @@ class Moderation(commands.Cog):
         await ctx.send(f"{member.mention} kullanıcısı {ctx.author.mention} tarafından \'{reason}\' sebebiyle {minutes} dakika boyunca susturulmuştur.")
 
         await asyncio.sleep(minutes * 60)
-        role = discord.utils.get(ctx.guild.roles, name="GucukMute")
         await member.remove_roles(role)
         
         

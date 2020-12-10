@@ -1,5 +1,6 @@
-# Importing modules
+# Buradaki herşey proje için global dir
 
+# Importing modules
 import discord
 from discord.ext import commands
 from json import load
@@ -30,7 +31,10 @@ def pastebinpost(poster:str, syntax:str, content:str):
     r = req.post("https://pastebin.ubuntu.com/", payload)
 
     return "https://pastebin.ubuntu.com" + BeautifulSoup(r.text,"html.parser").find_all("a",{"class":"pturl"})[0].get("href")[:-6]
-    
+
+# Emoji
+OK_EMOJI = "\N{Ballot Box with Check}"
+FAIL_EMOJI = "\N{Cross Mark}"
 
 # Json Config
 json = load(open(jpath))

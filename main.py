@@ -11,7 +11,8 @@ async def isAuthor(ctx):
         await ctx.send("Bu komutu kullanmak için yetkiniz bulunmamaktadır.")
 
 # NOTE: member.guild_permissions.administrator ile kullanıcının yetkilerini sorgulayabilirsin        
- 
+# NOTE: ctx.message.add_reaction(OK_EMOJI) reaksiyon ekle
+
 @client.event
 async def on_ready():
     await client.get_channel(785950454721806358).send(":green_circle: bot online.") # optional
@@ -45,9 +46,9 @@ async def on_command_error(ctx, error): # Komut çalışırken hata alınırsa
     
     try:
         print(f"[WARN] {ctx.command.name} komutu {ctx.author} tarafından çalıştırılırken bir hata meydana geldi:\n{error}")
-    except:
+    except Exception as e:
         print("[WARN] Bilinmeyen bir komut alındı.")
-        
+        print(f"[ERROR] {e}")
 @client.event
 async def on_command_completion(ctx): # Komut sorunsuz çalışırsa
 	print(f"[INFO] {ctx.command.name} komutu {ctx.author} tarafından başarıyla çalıştırıldı.")
